@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 from scipy import stats
 
@@ -9,6 +10,7 @@ class DFA:
         self.Y = None
         self.Fn = None
         self.N = len(self.X)
+        self.size_boxs = None
         self.num_points = num_points
 
     def generate(self):
@@ -19,9 +21,9 @@ class DFA:
 
         self.Fn = []
 
-        size_boxs = [int(l) for l in np.logspace(1, np.log10(self.N + 1), self.num_points)]
+        self.size_boxs = [int(l) for l in np.logspace(1, np.log10(self.N + 1), self.num_points)]
 
-        for s in size_boxs:
+        for s in self.size_boxs:
 
             local_RMS = []
 
@@ -42,10 +44,24 @@ class DFA:
 
             self.Fn.append(np.mean(local_RMS))
 
-        return [self.Fn, size_boxs]
+        return self.Fn, self.size_boxs
 
-    def view_time_serie(self):
+    def view_time_serie(self, scale):
         pass
 
     def powerlaw_correlation(self, plot_correlation=False):
-        pass
+
+        slope, intercept, r_value, _, _ = stats.linregress(np.log10(self.size_boxs), np.log10(self.Fn))
+        pl_fit = (10 ** intercept) * (self.size_boxs ** slope)
+
+        if plot_correlation:
+
+            plt.xscale('log')
+            plt.yscale('log')
+
+            plt.plot(self.size_boxs, self.Fn, 'bo', alpha=0.5)
+            plt.plot(self.size_boxs, pl_fit, '--')
+
+            plt.show()
+
+        return slope, r_value**2
