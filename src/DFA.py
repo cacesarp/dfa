@@ -9,15 +9,16 @@ class DFA:
         self.X = X
         self.Y = None
         self.Fn = None
+        self.Y_idxs = None
         self.N = len(self.X)
         self.size_boxs = None
         self.num_points = num_points
 
-    def generate(self):
+    def run(self):
 
         mean = np.mean(self.X)
         self.Y = np.cumsum([(x - mean) for x in self.X])
-        Y_idxs = np.arange(0, len(self.Y), 1)
+        self.Y_idxs = np.arange(0, len(self.Y), 1)
 
         self.Fn = []
 
@@ -35,8 +36,8 @@ class DFA:
                 index_stop = (segment + 1) * s
 
                 # linear fit
-                slope, intercept, _, _, _ = stats.linregress(Y_idxs[index_start:index_stop], self.Y[index_start:index_stop])
-                fit = intercept + slope * Y_idxs[index_start:index_stop]
+                slope, intercept, _, _, _ = stats.linregress(self.Y_idxs[index_start:index_stop], self.Y[index_start:index_stop])
+                fit = intercept + slope * self.Y_idxs[index_start:index_stop]
 
                 # local root mean square
                 rms = np.sqrt(np.mean((self.Y[index_start:index_stop] - fit) ** 2))
@@ -46,8 +47,29 @@ class DFA:
 
         return self.Fn, self.size_boxs
 
-    def view_time_serie(self, scale):
-        pass
+    def view_timeserie_fluctuation(self, scale):
+
+        y_fit = []
+
+        n_segments = int(len(self.X) / scale)
+
+        for segment in range(n_segments):
+
+            index_start = segment * scale
+            index_stop = (segment + 1) * scale
+
+            # linear fit
+            slope, intercept, _, _, _ = stats.linregress(self.Y_idxs[index_start:index_stop], self.Y[index_start:index_stop])
+            fit = intercept + slope * self.Y_idxs[index_start:index_stop]
+
+            y_fit = y_fit + list(fit)
+
+            plt.plot([index_stop, index_stop], [min(self.Y), max(self.Y)], '--', color='gray', alpha=0.5)
+
+        plt.plot(self.Y_idxs, self.Y, '-b', alpha=0.4)
+        plt.plot(self.Y_idxs, y_fit, '--r')
+
+        plt.show()
 
     def powerlaw_correlation(self, plot_correlation=False):
 
