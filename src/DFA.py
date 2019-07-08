@@ -11,7 +11,7 @@ class DFA:
         self.Fn = None
         self.Y_idxs = None
         self.N = len(self.X)
-        self.size_boxs = None
+        self.scales = None
         self.num_points = num_points
 
     def run(self):
@@ -22,9 +22,9 @@ class DFA:
 
         self.Fn = []
 
-        self.size_boxs = [int(l) for l in np.logspace(1, np.log10(self.N + 1), self.num_points)]
+        self.scales = [int(l) for l in np.logspace(1, np.log10(self.N + 1), self.num_points)]
 
-        for s in self.size_boxs:
+        for s in self.scales:
 
             local_RMS = []
 
@@ -45,7 +45,7 @@ class DFA:
 
             self.Fn.append(np.mean(local_RMS))
 
-        return self.Fn, self.size_boxs
+        return self.Fn, self.scales
 
     def view_timeserie_fluctuation(self, scale):
 
@@ -73,16 +73,16 @@ class DFA:
 
     def powerlaw_correlation(self, plot_correlation=False):
 
-        slope, intercept, r_value, _, _ = stats.linregress(np.log10(self.size_boxs), np.log10(self.Fn))
-        pl_fit = (10 ** intercept) * (self.size_boxs ** slope)
+        slope, intercept, r_value, _, _ = stats.linregress(np.log10(self.scales), np.log10(self.Fn))
+        pl_fit = (10 ** intercept) * (self.scales ** slope)
 
         if plot_correlation:
 
             plt.xscale('log')
             plt.yscale('log')
 
-            plt.plot(self.size_boxs, self.Fn, 'bo', alpha=0.5)
-            plt.plot(self.size_boxs, pl_fit, '--')
+            plt.plot(self.scales, self.Fn, 'bo', alpha=0.5)
+            plt.plot(self.scales, pl_fit, '--')
 
             plt.show()
 
