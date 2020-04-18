@@ -14,15 +14,19 @@ class DFA:
         self.scales = None
         self.num_points = num_points
 
-    def run(self):
+    def run(self, integrate=True):
 
-        mean = np.mean(self.X)
-        self.Y = np.cumsum([(x - mean) for x in self.X])
-        self.Y_idxs = np.arange(0, len(self.Y), 1)
+        if integrate:
+            mean = np.mean(self.X)
+            self.Y = np.cumsum([(x - mean) for x in self.X])
+            self.Y_idxs = np.arange(0, len(self.Y), 1)
+        else:
+            self.Y = self.X
+            self.Y_idxs = np.arange(0, len(self.Y), 1)
 
         self.Fn = []
 
-        self.scales = [int(l) for l in np.logspace(1, np.log10(self.N + 1), self.num_points)]
+        self.scales = [int(l) for l in np.logspace(1, np.log10(self.N), self.num_points)]
 
         for s in self.scales:
 

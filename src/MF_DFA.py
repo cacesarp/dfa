@@ -26,7 +26,7 @@ class MF_DFA:
         # self.Q = np.arange(-5, 6, 1)
         self.Q = list(filter(lambda x: x != 0, np.arange(-5, 6, 1)))
 
-        self.scales = [int(l) for l in np.logspace(1, np.log10(self.N + 1), self.num_points)]
+        self.scales = [int(l) for l in np.logspace(1, np.log10(self.N), self.num_points)]
 
         for s in self.scales:
 
